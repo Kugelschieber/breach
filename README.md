@@ -1,25 +1,19 @@
-# breach
+# Breach
 
-## Project setup
+A browser game inspired by Breach Protocol from Cyberpunk 2077.
 
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
+## Run in development mode
 
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Build for production
 
 ```
 npm run build
 ```
 
-### Lints and fixes files
+## License
 
-```
-npm run lint
-```
+MIT
