@@ -80,9 +80,30 @@ export class Game {
     state: State = {selectionMode: SelectionMode.FreePick}
     public readonly size: number
     public readonly buffer: string[] = []
+    private readonly timeoutInterval: ReturnType<typeof setTimeout>
+    private readonly startTimeTimeStamp: number
+    private endTimestamp: number | null = null
 
-    constructor(public readonly matrix: string[], private readonly sequences: string[][], public readonly maxBufferLength: number) {
+    constructor(
+        public readonly matrix: string[],
+        private readonly sequences: string[][],
+        public readonly maxBufferLength: number,
+        public readonly timeout: number,
+    ) {
         this.size = Math.sqrt(matrix.length)
+        this.timeoutInterval = setTimeout(() => {
+                this.state = EndState.Lost
+                this.stopClock()
+            },
+            this.timeout)
+        this.startTimeTimeStamp = Date.now()
+    }
+
+    get remainingMilliseconds(): number {
+        if (this.endTimestamp) {
+            return this.timeout - (this.endTimestamp - this.startTimeTimeStamp)
+        }
+        return this.timeout - (Date.now() - this.startTimeTimeStamp)
     }
 
     getCell(row: number, column: number) {
@@ -112,11 +133,18 @@ export class Game {
         })
     }
 
+    private stopClock(): void {
+        clearTimeout(this.timeoutInterval)
+        this.endTimestamp = Date.now()
+    }
+
     private checkEndGame(): void {
         const isSequenceFulfilled = (sequence: Sequence) => sequence.sequence.length === sequence.numberOfFulfilled
         if (this.getSequences().every(isSequenceFulfilled)) {
+            this.stopClock()
             this.state = EndState.Won
         } else {
+            this.stopClock()
             if (this.buffer.length >= this.maxBufferLength) {
                 this.state = EndState.Lost
             }
