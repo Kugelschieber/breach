@@ -81,7 +81,7 @@ export class Game {
     public readonly size: number
     public readonly buffer: string[] = []
 
-    constructor(public readonly matrix: string[], private readonly sequences: string[][]) {
+    constructor(public readonly matrix: string[], private readonly sequences: string[][], public readonly maxBufferLength: number) {
         this.size = Math.sqrt(matrix.length)
     }
 
@@ -110,6 +110,17 @@ export class Game {
                 numberOfFulfilled: longestPrefixLength,
             }
         })
+    }
+
+    private checkEndGame(): void {
+        const isSequenceFulfilled = (sequence: Sequence) => sequence.sequence.length === sequence.numberOfFulfilled
+        if (this.getSequences().every(isSequenceFulfilled)) {
+            this.state = EndState.Won
+        } else {
+            if (this.buffer.length >= this.maxBufferLength) {
+                this.state = EndState.Lost
+            }
+        }
     }
 
     pick(row: number, column: number): void {
@@ -153,5 +164,7 @@ export class Game {
                 })(selectionMode)
             }
         })(this.state)
+
+        this.checkEndGame();
     }
 }
