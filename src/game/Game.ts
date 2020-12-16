@@ -106,7 +106,7 @@ export class Game {
         return this.timeout - (Date.now() - this.startTimeTimeStamp)
     }
 
-    getCell(row: number, column: number) {
+    getCell(row: number, column: number): string {
         return this.matrix[row + column * this.size]
     }
 
