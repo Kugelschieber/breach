@@ -71,16 +71,45 @@ class IllegalMoveError extends Error {
     }
 }
 
+interface Sequence {
+    sequence: string[]
+    numberOfFulfilled: number
+}
+
 export class Game {
     state: State = {selectionMode: SelectionMode.FreePick}
     public readonly size: number
+    public readonly buffer: string[] = []
 
-    constructor(public readonly matrix: string[]) {
+    constructor(public readonly matrix: string[], private readonly sequences: string[][]) {
         this.size = Math.sqrt(matrix.length)
     }
 
     getCell(row: number, column: number) {
         return this.matrix[row + column * this.size]
+    }
+
+    getSequences(): Sequence[] {
+        return this.sequences.map(sequence => {
+            let longestPrefixLength = 0
+            for (let i = 0; i < this.buffer.length; ++i) {
+                let prefixLength = 0;
+                for (let j = 0; j < Math.min(sequence.length, this.buffer.length - i); ++j) {
+                    if (this.buffer[i + j] != sequence[j]) {
+                        // abort sequence
+                        prefixLength = 0
+                        break;
+                    }
+                    ++prefixLength;
+                }
+                longestPrefixLength = Math.max(longestPrefixLength, prefixLength);
+            }
+
+            return {
+                sequence: sequence,
+                numberOfFulfilled: longestPrefixLength,
+            }
+        })
     }
 
     pick(row: number, column: number): void {
@@ -91,7 +120,9 @@ export class Game {
         matchState({
             Won: () => {throw new IllegalMoveError()},
             Lost: () => {throw new IllegalMoveError()},
-            InProgress: (selectionMode) =>
+            InProgress: (selectionMode) => {
+                this.buffer.push(this.getCell(row, column))
+
                 matchSelectionState({
                     Free: () => {
                         this.state = {
@@ -119,7 +150,8 @@ export class Game {
                             throw new IllegalMoveError()
                         }
                     },
-                })(selectionMode),
+                })(selectionMode)
+            }
         })(this.state)
     }
 }
