@@ -21,7 +21,7 @@ describe("GameState", () => {
 
     test("getting cell works", () => {
         const game = new Game(threeByThreeMatrix, [["AA"]], unrestrictedBuffer, unlimitedTime);
-        expect(game.getCell(0, 2)).toEqual("02")
+        expect(game.getCell(0, 2)).toEqual({ value: "02", isUsed: false })
     });
 
     describe("picking", () => {
@@ -34,9 +34,16 @@ describe("GameState", () => {
             const game = new Game(threeByThreeMatrix, [["AA"]], unrestrictedBuffer, unlimitedTime);
             game.pick(0, 0);
             expect(game.state).toEqual({selectionMode: SelectionMode.RowPick, column: 0});
+            expect(game.getCell(0, 0).isUsed).toEqual(true);
             expect(() => game.pick(0, 2)).toThrow();
             game.pick(2, 0);
             expect(game.state).toEqual({selectionMode: SelectionMode.ColumnPick, row: 2});
+        });
+
+        test("cannot pick cell twice", () => {
+            const game = new Game(threeByThreeMatrix, [["AA"]], unrestrictedBuffer, unlimitedTime);
+            game.pick(0, 0);
+            expect(() => game.pick(0, 0)).toThrow();
         });
 
         test("picking outside of range fails", () => {
@@ -52,7 +59,11 @@ describe("GameState", () => {
             const game = new Game(threeByThreeMatrix, [simpleSequence], unrestrictedBuffer, unlimitedTime);
             expect(game.getSequences()).toEqual([{sequence: simpleSequence, numberOfFulfilled: 0}])
             game.pick(0, 0);
-            expect(game.buffer).toEqual(["00"]);
+            expect(game.buffer).toEqual([{
+                positionInMatrixRow: 0,
+                positionInMatrixColumn: 0,
+                value: "00"
+            }]);
             expect(game.getSequences()).toEqual([{sequence: simpleSequence, numberOfFulfilled: 1}])
         });
 
