@@ -5,7 +5,7 @@ export interface SaveGame {
     score: number
 }
 
-export function saveGame(saveGame: SaveGame) {
+export function saveGame(saveGame: SaveGame): void {
     localStorage.setItem(saveGameKey, JSON.stringify(saveGame));
 }
 
