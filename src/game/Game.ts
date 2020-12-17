@@ -1,3 +1,5 @@
+import GameConfiguration from "./GameConfiguration";
+
 export enum EndState {
     Won,
     Lost,
@@ -95,31 +97,26 @@ export class Game {
     private readonly startTimeTimeStamp: number
     private endTimestamp: number | null = null
 
-    constructor(
-        public readonly matrix: string[],
-        private readonly sequences: string[][],
-        public readonly maxBufferLength: number,
-        public readonly timeout: number,
-    ) {
-        this.size = Math.sqrt(matrix.length)
+    constructor(private readonly config: GameConfiguration) {
+        this.size = Math.sqrt(config.matrix.length)
         this.timeoutInterval = setTimeout(() => {
                 this.state = EndState.Lost
                 this.stopClock()
             },
-            this.timeout)
+            this.config.timeout)
         this.startTimeTimeStamp = Date.now()
     }
 
     get remainingMilliseconds(): number {
         if (this.endTimestamp) {
-            return this.timeout - (this.endTimestamp - this.startTimeTimeStamp)
+            return this.config.timeout - (this.endTimestamp - this.startTimeTimeStamp)
         }
-        return this.timeout - (Date.now() - this.startTimeTimeStamp)
+        return this.config.timeout - (Date.now() - this.startTimeTimeStamp)
     }
 
     getCell(row: number, column: number): Cell {
         return {
-            value: this.matrix[row + column * this.size],
+            value: this.config.matrix[row + column * this.size],
             isUsed: this.buffer.some(x =>
                 x.positionInMatrixRow == row &&
                 x.positionInMatrixColumn == column
@@ -128,7 +125,7 @@ export class Game {
     }
 
     getSequences(): Sequence[] {
-        return this.sequences.map(sequence => {
+        return this.config.sequences.map(sequence => {
             let longestPrefixLength = 0
             for (let i = 0; i < this.buffer.length; ++i) {
                 let prefixLength = 0;
@@ -162,7 +159,7 @@ export class Game {
             this.state = EndState.Won
         } else {
             this.stopClock()
-            if (this.buffer.length >= this.maxBufferLength) {
+            if (this.buffer.length >= this.config.maxBufferLength) {
                 this.state = EndState.Lost
             }
         }
