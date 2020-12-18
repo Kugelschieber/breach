@@ -1,3 +1,5 @@
+import GameConfiguration from "./GameConfiguration";
+
 export enum EndState {
     Won,
     Lost,
@@ -76,47 +78,59 @@ interface Sequence {
     numberOfFulfilled: number
 }
 
+interface Buffer {
+    value: string
+    positionInMatrixRow: number
+    positionInMatrixColumn: number
+}
+
+interface Cell {
+    value: string
+    isUsed: boolean
+}
+
 export class Game {
     state: State = {selectionMode: SelectionMode.FreePick}
     public readonly size: number
-    public readonly buffer: string[] = []
+    public readonly buffer: Buffer[] = []
     private readonly timeoutInterval: ReturnType<typeof setTimeout>
     private readonly startTimeTimeStamp: number
     private endTimestamp: number | null = null
 
-    constructor(
-        public readonly matrix: string[],
-        private readonly sequences: string[][],
-        public readonly maxBufferLength: number,
-        public readonly timeout: number,
-    ) {
-        this.size = Math.sqrt(matrix.length)
+    constructor(private readonly config: GameConfiguration) {
+        this.size = Math.sqrt(config.matrix.length)
         this.timeoutInterval = setTimeout(() => {
                 this.state = EndState.Lost
                 this.stopClock()
             },
-            this.timeout)
+            this.config.timeout)
         this.startTimeTimeStamp = Date.now()
     }
 
     get remainingMilliseconds(): number {
         if (this.endTimestamp) {
-            return this.timeout - (this.endTimestamp - this.startTimeTimeStamp)
+            return this.config.timeout - (this.endTimestamp - this.startTimeTimeStamp)
         }
-        return this.timeout - (Date.now() - this.startTimeTimeStamp)
+        return this.config.timeout - (Date.now() - this.startTimeTimeStamp)
     }
 
-    getCell(row: number, column: number): string {
-        return this.matrix[row + column * this.size]
+    getCell(row: number, column: number): Cell {
+        return {
+            value: this.config.matrix[row + column * this.size],
+            isUsed: this.buffer.some(x =>
+                x.positionInMatrixRow == row &&
+                x.positionInMatrixColumn == column
+                ),
+        }
     }
 
     getSequences(): Sequence[] {
-        return this.sequences.map(sequence => {
+        return this.config.sequences.map(sequence => {
             let longestPrefixLength = 0
             for (let i = 0; i < this.buffer.length; ++i) {
                 let prefixLength = 0;
                 for (let j = 0; j < Math.min(sequence.length, this.buffer.length - i); ++j) {
-                    if (this.buffer[i + j] != sequence[j]) {
+                    if (this.buffer[i + j].value != sequence[j]) {
                         // abort sequence
                         prefixLength = 0
                         break;
@@ -145,7 +159,7 @@ export class Game {
             this.state = EndState.Won
         } else {
             this.stopClock()
-            if (this.buffer.length >= this.maxBufferLength) {
+            if (this.buffer.length >= this.config.maxBufferLength) {
                 this.state = EndState.Lost
             }
         }
@@ -160,7 +174,16 @@ export class Game {
             Won: () => {throw new IllegalMoveError()},
             Lost: () => {throw new IllegalMoveError()},
             InProgress: (selectionMode) => {
-                this.buffer.push(this.getCell(row, column))
+                const cell = this.getCell(row, column)
+                if (cell.isUsed) {
+                    throw new IllegalMoveError()
+                }
+
+                this.buffer.push({
+                    value: cell.value,
+                    positionInMatrixRow: row,
+                    positionInMatrixColumn: column,
+                })
 
                 matchSelectionState({
                     Free: () => {
