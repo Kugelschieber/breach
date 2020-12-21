@@ -12,7 +12,7 @@ describe("GameState", () => {
     const unlimitedTime = 999 * 1000
 
     test("getting size works", () => {
-        expect((new Game({ matrix: ["00"], sequences: [["AA"]], maxBufferLength: unrestrictedBuffer, timeout: unlimitedTime })).size).toEqual(1)
+        expect((new Game({ matrix: ["00"], sequences: [["AA"]], maxBufferLength: unrestrictedBuffer, timeoutMilliseconds: unlimitedTime })).size).toEqual(1)
         expect((new Game({
             matrix: [
                 "00", "01",
@@ -20,7 +20,7 @@ describe("GameState", () => {
             ],
             sequences: [],
             maxBufferLength: unrestrictedBuffer,
-            timeout: unlimitedTime,
+            timeoutMilliseconds: unlimitedTime,
         })).size).toEqual(2)
     });
 
@@ -29,14 +29,14 @@ describe("GameState", () => {
             matrix: threeByThreeMatrix,
             sequences: [["AA"]],
             maxBufferLength: unrestrictedBuffer,
-            timeout: unlimitedTime,
+            timeoutMilliseconds: unlimitedTime,
         });
         expect(game.getCell(0, 2)).toEqual({ value: "02", isUsed: false })
     });
 
     describe("picking", () => {
         test("starts with free pick", () => {
-            const game = new Game({ matrix: [], sequences: [["AA"]], maxBufferLength: 1, timeout: unlimitedTime });
+            const game = new Game({ matrix: [], sequences: [["AA"]], maxBufferLength: 1, timeoutMilliseconds: unlimitedTime });
             expect(game.state).toEqual({ selectionMode: SelectionMode.FreePick })
         });
 
@@ -45,7 +45,7 @@ describe("GameState", () => {
                 matrix: threeByThreeMatrix,
                 sequences: [["AA"]],
                 maxBufferLength: unrestrictedBuffer,
-                timeout: unlimitedTime,
+                timeoutMilliseconds: unlimitedTime,
             });
             game.pick(0, 0);
             expect(game.state).toEqual({ selectionMode: SelectionMode.RowPick, column: 0 });
@@ -53,6 +53,7 @@ describe("GameState", () => {
             expect(() => game.pick(0, 2)).toThrow();
             game.pick(2, 0);
             expect(game.state).toEqual({ selectionMode: SelectionMode.ColumnPick, row: 2 });
+            expect(game.buffer.length).toEqual(2);
         });
 
         test("cannot pick cell twice", () => {
@@ -60,10 +61,11 @@ describe("GameState", () => {
                 matrix: threeByThreeMatrix,
                 sequences: [["AA"]],
                 maxBufferLength: unrestrictedBuffer,
-                timeout: unlimitedTime,
+                timeoutMilliseconds: unlimitedTime,
             });
             game.pick(0, 0);
             expect(() => game.pick(0, 0)).toThrow();
+            expect(game.buffer.length).toEqual(1);
         });
 
         test("picking outside of range fails", () => {
@@ -71,7 +73,7 @@ describe("GameState", () => {
                 matrix: threeByThreeMatrix,
                 sequences: [],
                 maxBufferLength: unrestrictedBuffer,
-                timeout: unlimitedTime,
+                timeoutMilliseconds: unlimitedTime,
             });
             expect(() => game.pick(-1, 0)).toThrow();
             expect(() => game.pick(0, -1)).toThrow();
@@ -85,7 +87,7 @@ describe("GameState", () => {
                 matrix: threeByThreeMatrix,
                 sequences: [simpleSequence],
                 maxBufferLength: unrestrictedBuffer,
-                timeout: unlimitedTime,
+                timeoutMilliseconds: unlimitedTime,
             });
             expect(game.getSequences()).toEqual([{ sequence: simpleSequence, numberOfFulfilled: 0 }])
             game.pick(0, 0);
@@ -95,6 +97,7 @@ describe("GameState", () => {
                 value: "00"
             }]);
             expect(game.getSequences()).toEqual([{ sequence: simpleSequence, numberOfFulfilled: 1 }])
+            expect(game.buffer.length).toEqual(1);
         });
 
         test("picking fulfills second sequence occurence", () => {
@@ -107,7 +110,7 @@ describe("GameState", () => {
                 ],
                 sequences: [sequence],
                 maxBufferLength: unrestrictedBuffer,
-                timeout: unlimitedTime,
+                timeoutMilliseconds: unlimitedTime,
             });
             expect(game.getSequences()).toEqual([{ sequence: sequence, numberOfFulfilled: 0 }])
             game.pick(0, 0);
@@ -120,6 +123,7 @@ describe("GameState", () => {
             expect(game.getSequences()).toEqual([{ sequence: sequence, numberOfFulfilled: 2 }])
             game.pick(0, 2);
             expect(game.getSequences()).toEqual([{ sequence: sequence, numberOfFulfilled: 3 }])
+            expect(game.buffer.length).toEqual(5);
         });
     });
 
@@ -133,7 +137,7 @@ describe("GameState", () => {
                 ],
                 sequences: [["AA", "BB", "CC"]],
                 maxBufferLength: 3,
-                timeout: unlimitedTime,
+                timeoutMilliseconds: unlimitedTime,
             })
             game.pick(0, 0)
             game.pick(2, 0)
@@ -151,7 +155,7 @@ describe("GameState", () => {
                 ],
                 sequences: [["AA", "BB", "CC"]],
                 maxBufferLength: 3,
-                timeout: unlimitedTime,
+                timeoutMilliseconds: unlimitedTime,
             })
             game.pick(0, 0)
             game.pick(1, 0)
@@ -186,7 +190,7 @@ describe("GameState", () => {
                 ],
                 sequences: [["AA"]],
                 maxBufferLength: 3,
-                timeout: 10_000,
+                timeoutMilliseconds: 10_000,
             })
             fakeTimeProgress(1_000)
             expect(game.remainingMilliseconds).toEqual(9_000)
@@ -208,7 +212,7 @@ describe("GameState", () => {
                 ],
                 sequences: [["AA"]],
                 maxBufferLength: unrestrictedBuffer,
-                timeout: 10_000,
+                timeoutMilliseconds: 10_000,
             }
             )
             fakeTimeProgress(1_000)

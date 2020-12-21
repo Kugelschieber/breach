@@ -4,7 +4,6 @@ import { saveGameKey, saveGame, loadGame } from './SaveGame';
 describe("SaveGame", () => {
     const state = {
         level: 42,
-        score: 89,
     };
 
     beforeEach(() => {

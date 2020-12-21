@@ -2,31 +2,32 @@
     <div class="buffer">
         <h2>Buffer</h2>
         <div class="buffer-slots">
-            <div class="buffer-slots-slot buffer-slots-border" v-for="(slot, i) in slots" :key="i">
-                {{slot}}
+            <div class="buffer-slots-slot buffer-slots-border" v-for="(slot, i) in maxBufferLength" :key="i">
+                <span v-if="buffer.length > i">{{buffer[i].value}}</span>
             </div>
         </div>
-        <h2>Sequences</h2>
-        <div class="buffer-codes" v-for="(code, i) in codes" :key="i">
-            <div class="buffer-slots">
-                <div class="buffer-slots-slot" v-for="(digit, j) in code.code" :key="j">
-                    {{digit}}
-                </div>
-            </div>
-            <div class="buffer-points">
-                {{code.points}} Pts
-            </div>
-        </div>
+        <Sequences />
     </div>
 </template>
 
 <script lang="ts">
-    import {defineComponent} from "vue";
+    import { Game } from "@/game/Game";
+    import {defineComponent, inject, Ref, computed} from "vue";
+    import Sequences from "./Sequences.vue";
     
     export default defineComponent({
-        props: {
-            slots: {type: Array, required: true},
-            codes: {type: Array, required: true}
+        components: {
+            Sequences
+        },
+        setup() {
+            const game = inject("game") as Ref<Game>;
+            const maxBufferLength = computed(() => game.value.maxBufferLength);
+            const buffer = computed(() => game.value.buffer);
+
+            return {
+                maxBufferLength,
+                buffer
+            }
         }
     });
 </script>

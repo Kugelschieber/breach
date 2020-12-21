@@ -19,6 +19,6 @@ describe("MatrixGen", () => {
         expect(gameConfig.maxBufferLength).not.toBeNull;
         expect(gameConfig.sequences).not.toBeNull;
         console.log(gameConfig.sequences);
-        expect(gameConfig.timeout).not.toBeNull;
+        expect(gameConfig.timeoutMilliseconds).not.toBeNull;
     });
 });
