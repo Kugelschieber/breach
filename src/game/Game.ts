@@ -156,11 +156,9 @@ export class Game {
         if (this.getSequences().every(isSequenceFulfilled)) {
             this.stopClock()
             this.state = EndState.Won
-        } else {
+        } else if (this.buffer.length >= this.config.maxBufferLength) {
             this.stopClock()
-            if (this.buffer.length >= this.config.maxBufferLength) {
-                this.state = EndState.Lost
-            }
+            this.state = EndState.Lost
         }
     }
 
@@ -174,15 +172,10 @@ export class Game {
             Lost: () => {throw new IllegalMoveError()},
             InProgress: (selectionMode) => {
                 const cell = this.getCell(row, column)
-                if (cell.isUsed) {
-                    throw new IllegalMoveError()
-                }
 
-                this.buffer.push({
-                    value: cell.value,
-                    positionInMatrixRow: row,
-                    positionInMatrixColumn: column,
-                })
+                if (cell.isUsed) {
+                    throw new IllegalMoveError();
+                }
 
                 matchSelectionState({
                     Free: () => {
@@ -212,6 +205,12 @@ export class Game {
                         }
                     },
                 })(selectionMode)
+
+                this.buffer.push({
+                    value: cell.value,
+                    positionInMatrixRow: row,
+                    positionInMatrixColumn: column,
+                })
             }
         })(this.state)
 

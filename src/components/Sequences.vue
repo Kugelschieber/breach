@@ -10,11 +10,13 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, inject} from "vue";
+    import { Game } from "@/game/Game";
+    import {computed, defineComponent, inject, Ref} from "vue";
     
     export default defineComponent({
         setup() {
-            const sequences = inject("sequences");
+            const game = inject("game") as Ref<Game>;
+            const sequences = computed(() => game.value.sequences);
 
             return {
                 sequences

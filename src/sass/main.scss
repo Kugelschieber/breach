@@ -107,6 +107,11 @@ main {
         height: 32px;
         margin: 0 5px 5px 0;
         cursor: pointer;
+
+        &:hover {
+            background: $yellow;
+            color: $background;
+        }
     }
 }
 

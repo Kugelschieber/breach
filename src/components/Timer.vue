@@ -6,14 +6,30 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, computed, inject, Ref} from "vue";
+    import { Game } from "@/game/Game";
+    import {defineComponent, computed, inject, Ref, ref} from "vue";
     
     export default defineComponent({
         setup() {
-            const remainingMilliseconds = inject("remainingMilliseconds") as Ref<number>;
-            const timeoutMilliseconds = inject("timeoutMilliseconds") as Ref<number>;
+            const game = inject("game") as Ref<Game>;
+            const remainingMilliseconds = ref(game.value.remainingMilliseconds);
+            const timeoutMilliseconds = computed(() => game.value.timeoutMilliseconds);
             const progress = computed(() => remainingMilliseconds.value/timeoutMilliseconds.value*100);
             const countdown = computed(() => (remainingMilliseconds.value/1000).toFixed(2));
+
+            const updateTime = () => {
+                remainingMilliseconds.value = game.value.remainingMilliseconds;
+                
+                if (remainingMilliseconds.value > 0) {
+                    requestAnimationFrame(() => {
+                        updateTime();
+                    });
+                }
+            }
+
+            requestAnimationFrame(() => {
+                updateTime();
+            });
 
             return {
                 countdown,

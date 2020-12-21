@@ -3,7 +3,7 @@
         <h2>Buffer</h2>
         <div class="buffer-slots">
             <div class="buffer-slots-slot buffer-slots-border" v-for="(slot, i) in maxBufferLength" :key="i">
-                <span v-if="buffer.length > i">{{buffer[i]}}</span>
+                <span v-if="buffer.length > i">{{buffer[i].value}}</span>
             </div>
         </div>
         <Sequences />
@@ -11,7 +11,8 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, inject} from "vue";
+    import { Game } from "@/game/Game";
+    import {defineComponent, inject, Ref, computed} from "vue";
     import Sequences from "./Sequences.vue";
     
     export default defineComponent({
@@ -19,8 +20,9 @@
             Sequences
         },
         setup() {
-            const maxBufferLength = inject("maxBufferLength");
-            const buffer = inject("buffer");
+            const game = inject("game") as Ref<Game>;
+            const maxBufferLength = computed(() => game.value.maxBufferLength);
+            const buffer = computed(() => game.value.buffer);
 
             return {
                 maxBufferLength,

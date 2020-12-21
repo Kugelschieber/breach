@@ -8,13 +8,12 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, provide, ref, readonly} from "vue";
+    import {defineComponent, provide, ref} from "vue";
     import Level from "./components/Level.vue";
     import Timer from "./components/Timer.vue";
     import Buffer from "./components/Buffer.vue";
     import Matrix from "./components/Matrix.vue";
     import { Game } from "./game/Game";
-    import {useTimer} from "./components/timer";
 
     export default defineComponent({
         components: {
@@ -24,8 +23,7 @@
             Matrix
         },
         setup() {
-            const {updateCountdown} = useTimer();
-            const game = new Game({
+            const game = ref(new Game({
                 matrix: [
                     "AA", "BB", "CC",
                     "DD", "AA", "BB",
@@ -36,23 +34,9 @@
                 ],
                 maxBufferLength: 3,
                 timeoutMilliseconds: 60_000,
-            });
+            }));
+            provide("game", game);
             const level = ref(1);
-            const remainingMilliseconds = ref(game.remainingMilliseconds);
-            const timeoutMilliseconds = ref(game.timeoutMilliseconds);
-            const maxBufferLength = ref(game.maxBufferLength);
-            const buffer = ref(game.buffer);
-            const sequences = ref(game.sequences);
-            const size = ref(game.size);
-            const matrix = ref(game.matrix);
-            provide("remainingMilliseconds", readonly(remainingMilliseconds));
-            provide("timeoutMilliseconds", readonly(timeoutMilliseconds));
-            provide("maxBufferLength", readonly(maxBufferLength));
-            provide("buffer", readonly(buffer));
-            provide("sequences", readonly(sequences));
-            provide("size", readonly(size));
-            provide("matrix", readonly(matrix));
-            updateCountdown(game, remainingMilliseconds);
 
             return {
                 level

@@ -53,6 +53,7 @@ describe("GameState", () => {
             expect(() => game.pick(0, 2)).toThrow();
             game.pick(2, 0);
             expect(game.state).toEqual({ selectionMode: SelectionMode.ColumnPick, row: 2 });
+            expect(game.buffer.length).toEqual(2);
         });
 
         test("cannot pick cell twice", () => {
@@ -64,6 +65,7 @@ describe("GameState", () => {
             });
             game.pick(0, 0);
             expect(() => game.pick(0, 0)).toThrow();
+            expect(game.buffer.length).toEqual(1);
         });
 
         test("picking outside of range fails", () => {
@@ -95,6 +97,7 @@ describe("GameState", () => {
                 value: "00"
             }]);
             expect(game.getSequences()).toEqual([{ sequence: simpleSequence, numberOfFulfilled: 1 }])
+            expect(game.buffer.length).toEqual(1);
         });
 
         test("picking fulfills second sequence occurence", () => {
@@ -120,6 +123,7 @@ describe("GameState", () => {
             expect(game.getSequences()).toEqual([{ sequence: sequence, numberOfFulfilled: 2 }])
             game.pick(0, 2);
             expect(game.getSequences()).toEqual([{ sequence: sequence, numberOfFulfilled: 3 }])
+            expect(game.buffer.length).toEqual(5);
         });
     });
 
