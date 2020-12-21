@@ -84,14 +84,6 @@ main {
             margin: 0 5px 0 0;
         }
 
-        &-points {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 64px;
-            height: 32px;
-        }
-
         &-border {
             border: 1px solid $yellow;
         }

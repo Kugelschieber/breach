@@ -2,7 +2,6 @@ export const saveGameKey = "save_game";
 
 export interface SaveGame {
     level: number
-    score: number
 }
 
 export function saveGame(saveGame: SaveGame): void {

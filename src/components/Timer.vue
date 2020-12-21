@@ -6,18 +6,16 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, ref, computed} from "vue";
+    import {defineComponent, computed, inject, Ref} from "vue";
     
     export default defineComponent({
-        props: {
-            time: {type: Object, required: true}
-        },
-        setup(props) {
-            const remainingTime = ref(60)
-            const progress = computed(() => remainingTime.value/60*100);
-            const countdown = computed(() => remainingTime.value.toFixed(2));
+        setup() {
+            const remainingTime = inject("remainingMilliseconds") as Ref<number>;
+            const timeoutMilliseconds = inject("timeoutMilliseconds") as Ref<number>;
+            const progress = computed(() => remainingTime.value/timeoutMilliseconds.value*100);
+            const countdown = computed(() => (remainingTime.value/1000).toFixed(2));
 
-            const updateTime = () => {
+            /*const updateTime = () => {
                 remainingTime.value = Math.max(0, (props.time.getTime() - new Date().getTime()) / 1000);
                 if (remainingTime.value > 0) {
                     requestAnimationFrame(() => {
@@ -28,7 +26,7 @@
 
             requestAnimationFrame(() => {
                 updateTime();
-            });
+            });*/
 
             return {
                 countdown,

@@ -100,18 +100,17 @@ export class Game {
     constructor(private readonly config: GameConfiguration) {
         this.size = Math.sqrt(config.matrix.length)
         this.timeoutInterval = setTimeout(() => {
-                this.state = EndState.Lost
-                this.stopClock()
-            },
-            this.config.timeout)
+            this.state = EndState.Lost
+            this.stopClock()
+        }, this.config.timeoutMilliseconds)
         this.startTimeTimeStamp = Date.now()
     }
 
     get remainingMilliseconds(): number {
         if (this.endTimestamp) {
-            return this.config.timeout - (this.endTimestamp - this.startTimeTimeStamp)
+            return this.config.timeoutMilliseconds - (this.endTimestamp - this.startTimeTimeStamp)
         }
-        return this.config.timeout - (Date.now() - this.startTimeTimeStamp)
+        return this.config.timeoutMilliseconds - (Date.now() - this.startTimeTimeStamp)
     }
 
     getCell(row: number, column: number): Cell {
@@ -120,7 +119,7 @@ export class Game {
             isUsed: this.buffer.some(x =>
                 x.positionInMatrixRow == row &&
                 x.positionInMatrixColumn == column
-                ),
+            ),
         }
     }
 
@@ -217,5 +216,21 @@ export class Game {
         })(this.state)
 
         this.checkEndGame();
+    }
+
+    get maxBufferLength(): number {
+        return this.config.maxBufferLength
+    }
+
+    get sequences(): string[][] {
+        return this.config.sequences
+    }
+
+    get matrix(): string[] {
+        return this.config.matrix
+    }
+
+    get timeoutMilliseconds(): number {
+        return this.config.timeoutMilliseconds
     }
 }
