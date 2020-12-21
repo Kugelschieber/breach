@@ -54,7 +54,7 @@ export function generateGameConfig(level: number, seed: string): GameConfigurati
         matrix: matrix,
         sequences: sequences,
         maxBufferLength: maxBufferLength,
-        timeout: defaultTimeout
+        timeoutMilliseconds: defaultTimeout
     };
 
     return result;
