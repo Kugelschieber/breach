@@ -14,6 +14,7 @@
     import Buffer from "./components/Buffer.vue";
     import Matrix from "./components/Matrix.vue";
     import { Game } from "./game/Game";
+    import {useTimer} from "./components/timer";
 
     export default defineComponent({
         components: {
@@ -23,6 +24,7 @@
             Matrix
         },
         setup() {
+            const {updateCountdown} = useTimer();
             const game = new Game({
                 matrix: [
                     "AA", "BB", "CC",
@@ -50,6 +52,7 @@
             provide("sequences", readonly(sequences));
             provide("size", readonly(size));
             provide("matrix", readonly(matrix));
+            updateCountdown(game, remainingMilliseconds);
 
             return {
                 level
