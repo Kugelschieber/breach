@@ -27,7 +27,7 @@
                 matrix: [
                     "AA", "BB", "CC",
                     "DD", "AA", "BB",
-                    "CC", "DD", "AA",
+                    "CC", "DD", "DD",
                 ],
                 sequences: [
                     ["AA", "CC", "DD"],

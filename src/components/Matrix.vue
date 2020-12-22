@@ -2,34 +2,84 @@
     <div class="matrix">
         <h2>Code-Matrix</h2>
         <div class="matrix-row" v-for="i in size" :key="i">
-            <div class="matrix-column" v-for="j in size" :key="j" v-on:click="select(i, j)">
-                {{matrix[(j - 1)*size + (i - 1)]}}
+            <div :class="{'matrix-column': true, active: active.row === j || active.column === i, used: game.getCell(j-1, i-1).isUsed, error: error.row === j && error.column === i}"
+                 v-for="j in size" :key="j"
+                 v-on:click="select(j, i)">
+                {{game.getCell(j-1, i-1).value}}
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-    import { Game } from "@/game/Game";
-    import {defineComponent, inject, computed, Ref} from "vue";
+    import { Game, matchState, matchSelectionState } from "@/game/Game";
+    import {defineComponent, inject, computed, Ref, ref} from "vue";
     
     export default defineComponent({
         setup() {
             const game = inject("game") as Ref<Game>;
             const size = computed(() => game.value.size);
             const matrix = computed(() => game.value.matrix);
+            const state = computed(() => game.value.state);
+            const active = ref({row: -1, column: -1});
+            const error = ref({row: -1, column: -1});
+            let errorTimeout: number;
 
             function select(row: number, column: number) {
                 try {
-                    game.value.pick(row-1, column-1);
+                    const newState = game.value.pick(row-1, column-1);
+                    
+                    matchState({
+                        Won: () => {
+                            console.log("Won!");
+                        },
+                        Lost: () => {
+                            console.log("Lost!");
+                        },
+                        InProgress: state => {
+                            matchSelectionState({
+                                Free: () => {/**/},
+                                Row: () => {
+                                    active.value = {
+                                        row: -1,
+                                        column,
+                                    };
+                                },
+                                Column: () => {
+                                    active.value = {
+                                        row,
+                                        column: -1,
+                                    };
+                                },
+                            })(state);
+                        },
+                    })(newState);
                 } catch (e) {
-                    console.log("nö!");
+                    error.value = {
+                        row,
+                        column,
+                    };
+
+                    if(errorTimeout) {
+                        clearTimeout(errorTimeout);
+                    }
+
+                    errorTimeout = setTimeout(() => {
+                        error.value = {
+                            row: -1,
+                            column: -1,
+                        };
+                    }, 500) as unknown as number;
                 }
             }
 
             return {
+                game,
                 size,
                 matrix,
+                state,
+                active,
+                error,
                 select
             }
         }

@@ -2,6 +2,8 @@
 
 $background: #121018;
 $yellow: #d0ee58;
+$red: rgb(211, 0, 0);
+$dark-gray: rgb(49, 49, 49);
 
 * {
     box-sizing: border-box;
@@ -103,15 +105,34 @@ main {
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 32px;
-        height: 32px;
+        width: 64px;
+        height: 64px;
         margin: 0 5px 5px 0;
         cursor: pointer;
+        font-size: 32px;
 
         &:hover {
-            background: $yellow;
+            background: $yellow !important;
             color: $background;
         }
+    }
+
+    .used {
+        opacity: 0.5;
+
+        &:hover {
+            background: none;
+            color: #fff;
+        }
+    }
+
+    .active {
+        background: $dark-gray;
+    }
+
+    .error {
+        background: $red !important;
+        color: #fff;
     }
 }
 

@@ -35,7 +35,7 @@ interface StateSpecificHandler<T> {
     InProgress(selectionState: SelectionState): T
 }
 
-function matchState<T>(h: StateSpecificHandler<T>): (a: State) => T {
+export function matchState<T>(h: StateSpecificHandler<T>): (a: State) => T {
     return (a: State) => {
         switch (a) {
             case EndState.Won:
@@ -54,7 +54,7 @@ interface SelectionStateSpecificHandler<T> {
     Column(column: number): T;
 }
 
-function matchSelectionState<T>(h: SelectionStateSpecificHandler<T>): (a: SelectionState) => T {
+export function matchSelectionState<T>(h: SelectionStateSpecificHandler<T>): (a: SelectionState) => T {
     return (a: SelectionState) => {
         switch (a.selectionMode) {
             case SelectionMode.FreePick:
@@ -162,7 +162,7 @@ export class Game {
         }
     }
 
-    pick(row: number, column: number): void {
+    pick(row: number, column: number): State {
         if (row < 0 || column < 0 || row >= this.size || column >= this.size) {
             throw new IllegalMoveError()
         }
@@ -215,6 +215,7 @@ export class Game {
         })(this.state)
 
         this.checkEndGame();
+        return this.state;
     }
 
     get maxBufferLength(): number {
