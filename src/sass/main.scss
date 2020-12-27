@@ -136,6 +136,22 @@ main {
     }
 }
 
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: $background;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .countdown {
+        font-size: 32px;
+    }
+}
+
 h1, h2 {
     display: flex;
     align-items: center;
@@ -145,4 +161,13 @@ h1, h2 {
     margin: 0;
     padding: 5px 0;
     height: 32px;
+}
+
+button {
+    border-width: 0;
+    background: $yellow;
+    color: $background;
+    padding: 10px 20px;
+    outline: none;
+    cursor: pointer;
 }

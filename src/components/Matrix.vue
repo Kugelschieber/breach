@@ -16,7 +16,7 @@
     import {defineComponent, inject, computed, Ref, ref} from "vue";
     
     export default defineComponent({
-        setup() {
+        setup(props, {emit}) {
             const game = inject("game") as Ref<Game>;
             const size = computed(() => game.value.size);
             const matrix = computed(() => game.value.matrix);
@@ -31,10 +31,12 @@
                     
                     matchState({
                         Won: () => {
-                            console.log("Won!");
+                            reset();
+                            emit("won");
                         },
                         Lost: () => {
-                            console.log("Lost!");
+                            reset();
+                            emit("lost");
                         },
                         InProgress: state => {
                             matchSelectionState({
@@ -70,6 +72,15 @@
                             column: -1,
                         };
                     }, 500) as unknown as number;
+                }
+            }
+
+            function reset() {
+                active.value ={row: -1, column: -1};
+                error.value = {row: -1, column: -1};
+                
+                if(errorTimeout) {
+                    clearTimeout(errorTimeout);
                 }
             }
 
