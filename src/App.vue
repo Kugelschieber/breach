@@ -4,7 +4,8 @@
         <Timer />
         <Buffer />
         <Matrix v-on:won="level++" v-on:lost="lost = true" />
-        <Start :level="level" v-on:start="nextLevel" />
+        <Start :level="level" :lost="lost" v-on:start="nextLevel" />
+        <End :level="level" v-on:restart="restart" v-if="lost" />
     </main>
 </template>
 
@@ -15,6 +16,7 @@
     import Buffer from "./components/Buffer.vue";
     import Matrix from "./components/Matrix.vue";
     import Start from "./components/Start.vue";
+    import End from "./components/End.vue";
     import { Game } from "./game/Game";
 
     export default defineComponent({
@@ -23,7 +25,8 @@
             Timer,
             Buffer,
             Matrix,
-            Start
+            Start,
+            End
         },
         setup() {
             const game = ref(new Game({
@@ -39,7 +42,7 @@
                 timeoutMilliseconds: 60_000,
             }));
             provide("game", game);
-            const level = ref(0);
+            const level = ref(1);
             const lost = ref(false);
 
             function nextLevel() {
@@ -57,10 +60,17 @@
                 });
             }
 
+            function restart() {
+                level.value = 1;
+                lost.value = false;
+                nextLevel();
+            }
+
             return {
                 level,
                 lost,
-                nextLevel
+                nextLevel,
+                restart
             }
         }
     });
